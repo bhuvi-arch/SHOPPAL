@@ -1,0 +1,22 @@
+# Python
+__pycache__/
+*.pyc
+venv/
+env/
+.venv/
+*.log
+
+# Environment variables (Secrets)
+.env
+config.py
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# MongoDB local files (if any)
+/data/

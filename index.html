@@ -1,0 +1,2262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Shoppal – AI Price Comparison</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <style>
+        /* ── reset & vars ── */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        :root {
+            --bg-body: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --card-bg: white;
+            --text-primary: #333;
+            --text-secondary: #666;
+            --border-color: #ddd;
+            --header-bg: white;
+            --hero-bg: white;
+            --modal-bg: white;
+            --stat-card-bg: #f8f9ff;
+            --platform-price-bg: #f0f0f0;
+            --ai-insights-bg: #f8f9ff;
+            --product-card-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+            --product-card-hover-shadow: 0 5px 20px rgba(0, 0, 0, 0.12);
+        }
+        body.dark {
+            --bg-body: #1a1a2e;
+            --card-bg: #2d2d44;
+            --text-primary: #f0f0f0;
+            --text-secondary: #aaaaaa;
+            --border-color: #444;
+            --header-bg: #2d2d44;
+            --hero-bg: #2d2d44;
+            --modal-bg: #2d2d44;
+            --stat-card-bg: #3a3a55;
+            --platform-price-bg: #3a3a55;
+            --ai-insights-bg: #3a3a55;
+            --product-card-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+            --product-card-hover-shadow: 0 5px 20px rgba(0, 0, 0, 0.4);
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg-body);
+            color: var(--text-primary);
+            transition: background 0.3s ease;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* ── header ── */
+        header {
+            background: var(--header-bg);
+            padding: 15px 25px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #667eea;
+            cursor: pointer;
+        }
+        .logo span {
+            color: #764ba2;
+        }
+        nav {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        nav a {
+            cursor: pointer;
+            text-decoration: none;
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+        nav a:hover {
+            color: #667eea;
+        }
+        nav .share-app-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+        nav .share-app-btn:hover {
+            opacity: 0.85;
+        }
+        .btn-login,
+        .btn-signup {
+            padding: 8px 20px;
+            border-radius: 25px;
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        .btn-login {
+            background: white;
+            color: #667eea;
+            border: 1px solid #667eea;
+        }
+        .btn-signup {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            cursor: pointer;
+        }
+
+        /* ── hero ── */
+        .hero {
+            background: var(--hero-bg);
+            padding: 30px;
+            border-radius: 12px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        h1 {
+            font-size: 2rem;
+        }
+        .search-box {
+            display: flex;
+            max-width: 550px;
+            margin: 20px auto;
+            align-items: center;
+            gap: 0;
+        }
+        .search-box input {
+            flex: 1;
+            padding: 12px 20px;
+            border: 2px solid var(--border-color);
+            border-radius: 30px 0 0 30px;
+            font-size: 16px;
+            background: var(--card-bg);
+            color: var(--text-primary);
+            outline: none;
+        }
+        .search-box input:focus {
+            border-color: #667eea;
+        }
+        .search-box .voice-btn {
+            padding: 12px 16px;
+            background: var(--card-bg);
+            border: 2px solid var(--border-color);
+            border-left: none;
+            cursor: pointer;
+            color: var(--text-primary);
+            transition: 0.2s;
+            font-size: 1rem;
+        }
+        .search-box .voice-btn:hover {
+            background: #f0f0f0;
+        }
+        .search-box .voice-btn.listening {
+            background: #ff4757;
+            color: white;
+            border-color: #ff4757;
+        }
+        .search-box button:last-child {
+            padding: 12px 25px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 0 30px 30px 0;
+            cursor: pointer;
+            font-weight: 600;
+            border: 2px solid #667eea;
+        }
+        .search-box button:last-child:hover {
+            opacity: 0.9;
+        }
+
+        .categories {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin: 20px 0;
+        }
+        .category-btn {
+            padding: 8px 20px;
+            border: 1px solid var(--border-color);
+            background: var(--card-bg);
+            color: var(--text-primary);
+            border-radius: 25px;
+            cursor: pointer;
+        }
+        .category-btn.active,
+        .category-btn:hover {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            display: none;
+        }
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* ── product cards ── */
+        .product-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 18px;
+            box-shadow: var(--product-card-shadow);
+            transition: transform 0.2s, box-shadow 0.2s;
+            position: relative;
+        }
+        .product-card:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--product-card-hover-shadow);
+        }
+        .favorite-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: none;
+            border: none;
+            font-size: 22px;
+            cursor: pointer;
+            color: #ff4757;
+            z-index: 10;
+        }
+        .product-card img {
+            width: 100%;
+            height: 150px;
+            object-fit: contain;
+            background: #f8f9fa;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+        .product-name {
+            font-weight: bold;
+            font-size: 1rem;
+            margin: 5px 0;
+        }
+        .product-brand {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+        }
+        .rating {
+            color: #ffc107;
+            margin: 5px 0;
+        }
+        .price-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 8px 0;
+            flex-wrap: wrap;
+        }
+        .price {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #667eea;
+        }
+        .original-price {
+            text-decoration: line-through;
+            color: #999;
+            font-size: 0.85rem;
+        }
+        .discount {
+            background: #ff4757;
+            color: white;
+            padding: 2px 10px;
+            border-radius: 15px;
+            font-size: 0.7rem;
+        }
+        .platform-prices {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 8px 0;
+        }
+        .platform-price {
+            background: var(--platform-price-bg);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+        }
+        .platform-price .plat {
+            font-weight: 600;
+        }
+        .platform-price .price-val {
+            font-weight: bold;
+            color: #667eea;
+        }
+        .platform-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin: 8px 0;
+        }
+        .buy-btn-platform {
+            display: block;
+            width: 100%;
+            padding: 8px;
+            background: #C8A2C8;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 13px;
+            text-align: center;
+        }
+        .buy-btn-platform:hover {
+            opacity: 0.85;
+            transform: translateY(-1px);
+        }
+        .ai-insights {
+            background: var(--ai-insights-bg);
+            padding: 8px;
+            border-radius: 8px;
+            margin: 8px 0;
+            font-size: 0.8rem;
+            border-left: 3px solid #667eea;
+        }
+        .detail-btn {
+            display: block;
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 12px;
+            background: #667eea;
+            color: white;
+        }
+        .detail-btn:hover {
+            opacity: 0.8;
+        }
+
+        /* Social share buttons */
+        .social-share {
+            display: flex;
+            gap: 8px;
+            margin-top: 8px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .social-share a {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            color: white;
+            text-decoration: none;
+            font-size: 14px;
+            transition: transform 0.2s;
+            background: #666;
+        }
+        .social-share a:hover {
+            transform: scale(1.1);
+        }
+        .social-share .whatsapp {
+            background: #25D366;
+        }
+        .social-share .telegram {
+            background: #0088cc;
+        }
+        .social-share .twitter {
+            background: #1DA1F2;
+        }
+        .social-share .facebook {
+            background: #1877F2;
+        }
+        .social-share .instagram {
+            background: #E4405F;
+        }
+        .social-share .copy-link {
+            background: #6c757d;
+        }
+
+        /* ── modals ── */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background: var(--modal-bg);
+            max-width: 700px;
+            width: 90%;
+            padding: 30px;
+            border-radius: 20px;
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .close-modal {
+            font-size: 28px;
+            cursor: pointer;
+            color: var(--text-secondary);
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background: var(--card-bg);
+            color: var(--text-primary);
+        }
+        .btn-primary {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .btn-primary:hover {
+            opacity: 0.9;
+        }
+        .btn-secondary {
+            width: 100%;
+            padding: 12px;
+            background: #f0f0f0;
+            color: #333;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .btn-secondary:hover {
+            opacity: 0.9;
+        }
+
+        /* ── toast ── */
+        #toast-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 9999;
+        }
+        .toast {
+            background: var(--card-bg);
+            color: var(--text-primary);
+            padding: 12px 20px;
+            margin-top: 10px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            min-width: 250px;
+            animation: slideIn 0.3s ease;
+            border-left: 4px solid #4caf50;
+        }
+        .toast.error {
+            border-left-color: #f44336;
+        }
+        .toast.info {
+            border-left-color: #2196f3;
+        }
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        @keyframes slideOut {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+        }
+
+        footer {
+            text-align: center;
+            padding: 30px;
+            color: white;
+            margin-top: 30px;
+        }
+
+        /* ── platform summary in detail modal ── */
+        .platform-summary {
+            margin: 15px 0;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 12px;
+        }
+        .platform-summary h4 {
+            margin-bottom: 8px;
+        }
+        .platform-summary .pros-cons {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .platform-summary .pros-cons div {
+            padding: 6px 10px;
+            border-radius: 6px;
+            background: var(--stat-card-bg);
+        }
+        .platform-summary .pros-cons div strong {
+            display: block;
+            margin-bottom: 4px;
+            font-size: 0.9rem;
+        }
+        .platform-summary .pros-cons div p {
+            margin: 0;
+            line-height: 1.5;
+            font-size: 0.92rem;
+        }
+        .platform-summary .pros-cons .pro-summary {
+            border-left: 3px solid #2ed573;
+        }
+        .platform-summary .pros-cons .con-summary {
+            border-left: 3px solid #ff4757;
+        }
+
+        /* App Share Modal */
+        #appShareModal .modal-content {
+            max-width: 450px;
+            text-align: center;
+        }
+
+        /* ── profile tabs ── */
+        .profile-tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+        .profile-tab {
+            padding: 6px 14px;
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            background: var(--card-bg);
+            color: var(--text-primary);
+            cursor: pointer;
+        }
+        .profile-tab.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+        .profile-tab-content {
+            display: none;
+        }
+        .profile-tab-content.active {
+            display: block;
+        }
+
+        .address-card {
+            background: var(--stat-card-bg);
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            position: relative;
+        }
+        .delete-addr {
+            position: absolute;
+            top: 8px;
+            right: 12px;
+            cursor: pointer;
+            color: #ff4757;
+        }
+        .order-card {
+            background: var(--stat-card-bg);
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+        .recent-card {
+            background: var(--stat-card-bg);
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+        .status {
+            font-weight: 600;
+        }
+        .status.pending {
+            color: #ffa502;
+        }
+        .status.delivered {
+            color: #2ed573;
+        }
+
+        /* ── responsive ── */
+        @media (max-width: 768px) {
+            .search-box {
+                flex-wrap: wrap;
+            }
+            .search-box input {
+                border-radius: 30px;
+                margin-bottom: 10px;
+                width: 100%;
+            }
+            .search-box .voice-btn {
+                border-radius: 30px 0 0 30px;
+                border-left: 2px solid var(--border-color);
+            }
+            .search-box button:last-child {
+                border-radius: 0 30px 30px 0;
+            }
+            .product-card {
+                flex: 0 0 100% !important;
+                max-width: 100% !important;
+            }
+            .platform-summary .pros-cons {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+
+        <!-- HEADER -->
+        <header>
+            <div class="logo" onclick="location.reload()">🛍️ Shoppal <span>India</span></div>
+            <nav>
+                <a onclick="showHome()">Home</a>
+                <a onclick="showFavorites()">❤️ Favorites</a>
+                <button class="share-app-btn" onclick="showAppShareModal()">📱 Share App</button>
+                <button id="darkModeToggle" style="background:none;border:none;font-size:1.2rem;cursor:pointer;color:var(--text-primary);">🌙</button>
+                <div id="userMenu">
+                    <button class="btn-login" id="loginBtn" onclick="showLoginModal()">Login</button>
+                    <button class="btn-signup" id="signupBtn" onclick="showSignupModal()">Sign Up</button>
+                    <div class="user-avatar" id="userAvatar" style="display:none;" onclick="showProfileModal()"><i class="fas fa-user"></i></div>
+                </div>
+            </nav>
+        </header>
+
+        <!-- HERO -->
+        <div class="hero" id="heroSection">
+            <h1>Find the Best Deals with AI! 🛒</h1>
+            <p>Compare across Amazon, Flipkart, Nykaa, Myntra & more</p>
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="Search for products..." />
+                <button id="voiceBtn" class="voice-btn" title="Search by voice"><i class="fas fa-microphone"></i></button>
+                <button id="searchBtn">🔍 Search</button>
+            </div>
+            <div class="categories" id="categories">
+                <button class="category-btn active" data-cat="all">All</button>
+                <button class="category-btn" data-cat="Skincare">🧴 Skincare</button>
+                <button class="category-btn" data-cat="Clothing">👗 Clothing</button>
+                <button class="category-btn" data-cat="Home & Kitchen">🍳 Kitchen</button>
+                <button class="category-btn" data-cat="Electronics">📱 Electronics</button>
+                <button class="category-btn" data-cat="Accessories">🎒 Accessories</button>
+                <button class="category-btn" data-cat="Footwear">👟 Footwear</button>
+            </div>
+        </div>
+
+        <!-- LOADING -->
+        <div class="loading" id="loading"><div class="spinner"></div><p>🤖 AI is analyzing...</p></div>
+
+        <!-- RESULTS -->
+        <div id="results"></div>
+
+        <!-- RECOMMENDATIONS -->
+        <div id="recommendationsSection" style="display: none; margin-top: 40px;">
+            <h2>🤖 Recommended for you</h2>
+            <div id="recommendationsList"></div>
+        </div>
+
+        <footer><p>🛍️ Shoppal – AI Shopping Companion | Made in India 🇮🇳</p></footer>
+    </div>
+
+    <!-- ===== MODALS ===== -->
+
+    <!-- Login -->
+    <div id="loginModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header"><h2>Login</h2><span class="close-modal" onclick="closeLoginModal()">&times;</span></div>
+            <form id="loginForm">
+                <div class="form-group"><label>Email</label><input type="email" id="loginEmail" required /></div>
+                <div class="form-group"><label>Password</label><input type="password" id="loginPassword" required /></div>
+                <button type="submit" class="btn-primary">Login</button>
+            </form>
+            <p style="margin-top:10px;text-align:center;">Don't have an account? <a href="#" onclick="showSignupModal()">Sign up</a></p>
+        </div>
+    </div>
+
+    <!-- Signup -->
+    <div id="signupModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header"><h2>Sign Up</h2><span class="close-modal" onclick="closeSignupModal()">&times;</span></div>
+            <form id="signupForm">
+                <div class="form-group"><label>Name</label><input type="text" id="signupName" required /></div>
+                <div class="form-group"><label>Email</label><input type="email" id="signupEmail" required /></div>
+                <div class="form-group"><label>Password</label><input type="password" id="signupPassword" required /></div>
+                <button type="submit" class="btn-primary">Sign Up</button>
+            </form>
+            <p style="margin-top:10px;text-align:center;">Already have an account? <a href="#" onclick="showLoginModal()">Login</a></p>
+        </div>
+    </div>
+
+    <!-- Profile -->
+    <div id="profileModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header"><h2>My Profile</h2><span class="close-modal" onclick="closeProfileModal()">&times;</span></div>
+            <div class="profile-tabs">
+                <button class="profile-tab active" onclick="switchTab('personal')">Personal Info</button>
+                <button class="profile-tab" onclick="switchTab('addresses')">Addresses</button>
+                <button class="profile-tab" onclick="switchTab('orders')">Order History</button>
+                <button class="profile-tab" onclick="switchTab('recent')">Recent Views</button>
+                <button class="profile-tab" onclick="switchTab('skin')">Skin Profile</button>
+            </div>
+            <div id="tab-personal" class="profile-tab-content active">
+                <div class="form-group"><label>Full Name</label><input type="text" id="editName" class="profile-input" /></div>
+                <div class="form-group"><label>Email</label><input type="email" id="editEmail" class="profile-input" disabled /></div>
+                <div class="form-group"><label>Phone</label><input type="tel" id="editPhone" class="profile-input" /></div>
+                <div class="form-group"><label>Date of Birth</label><input type="date" id="editDob" class="profile-input" /></div>
+                <div class="form-group"><label>Gender</label><select id="editGender" class="profile-input"><option value="">Select</option><option value="Male">Male</option><option value="Female">Female</option><option value="Other">Other</option></select></div>
+                <button class="btn-primary" onclick="savePersonalInfo()">Save Changes</button>
+                <button class="btn-secondary" onclick="logout()" style="margin-top:20px;background:#ff4757;color:white;">Logout</button>
+            </div>
+            <div id="tab-addresses" class="profile-tab-content"><div id="addressesList"></div><button class="btn-secondary" onclick="showAddAddressForm()">+ Add New Address</button></div>
+            <div id="tab-orders" class="profile-tab-content"><div id="ordersList"></div></div>
+            <div id="tab-recent" class="profile-tab-content"><div id="recentViewsList"></div></div>
+            <div id="tab-skin" class="profile-tab-content">
+                <div class="form-group"><label>Skin Type</label><select id="skinType" class="profile-input"><option value="">Select</option><option value="Oily">Oily</option><option value="Dry">Dry</option><option value="Combination">Combination</option><option value="Normal">Normal</option><option value="Sensitive">Sensitive</option></select></div>
+                <div class="form-group"><label>Skin Concerns (comma separated)</label><input type="text" id="skinConcerns" class="profile-input" placeholder="e.g., Acne, Pigmentation, Dryness" /></div>
+                <div class="form-group"><label>Allergies (comma separated)</label><input type="text" id="skinAllergies" class="profile-input" placeholder="e.g., Fragrance, Alcohol" /></div>
+                <button class="btn-primary" onclick="saveSkinProfile()">Save Skin Profile</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Product Detail -->
+    <div id="productDetailModal" class="modal" style="display:none; z-index:10000; justify-content:center; align-items:center;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalProductName">Product Details</h2>
+                <span class="close-modal" onclick="closeProductModal()">&times;</span>
+            </div>
+            <div id="productDetailContent"></div>
+        </div>
+    </div>
+
+    <!-- App Share Modal -->
+    <div id="appShareModal" class="modal" style="z-index:10003;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>📱 Share Shoppal App</h3>
+                <span class="close-modal" onclick="closeAppShareModal()">&times;</span>
+            </div>
+            <p style="margin-bottom: 15px;">Share the app with your friends and mentors!</p>
+            <div style="background: var(--stat-card-bg); padding: 12px; border-radius: 8px; margin-bottom: 15px; word-break: break-all;">
+                <code style="font-size: 0.9rem;" id="appUrlDisplay"></code>
+            </div>
+            <div class="social-share" style="justify-content: center; gap: 12px; margin: 10px 0 20px;">
+                <a href="#" id="shareAppWhatsApp" target="_blank" class="whatsapp" title="Share on WhatsApp"><i class="fab fa-whatsapp"></i></a>
+                <a href="#" id="shareAppTelegram" target="_blank" class="telegram" title="Share on Telegram"><i class="fab fa-telegram-plane"></i></a>
+                <a href="#" id="shareAppTwitter" target="_blank" class="twitter" title="Share on Twitter"><i class="fab fa-twitter"></i></a>
+                <a href="#" id="shareAppFacebook" target="_blank" class="facebook" title="Share on Facebook"><i class="fab fa-facebook-f"></i></a>
+                <a href="#" id="shareAppInstagram" target="_blank" class="instagram" title="Share on Instagram"><i class="fab fa-instagram"></i></a>
+                <a href="#" id="shareAppCopy" class="copy-link" title="Copy link" onclick="copyAppLink()"><i class="fas fa-copy"></i></a>
+            </div>
+            <button class="btn-secondary" onclick="closeAppShareModal()">Close</button>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div id="toast-container"></div>
+
+    <script>
+        // ============================================================
+        // 1.  CONFIG & STATE
+        // ============================================================
+        const API_URL = 'http://localhost:5000/api';
+        const IMAGE_BASE = 'http://localhost:5000/static/images/';
+        const APP_URL = window.location.origin;
+
+        let currentCategory = 'all';
+        let token = localStorage.getItem('token');
+        let currentUser = null;
+        let favorites = [];
+
+        // ============================================================
+        // 2.  TOAST
+        // ============================================================
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.innerHTML =
+                `<i class="fas ${type === 'success' ? 'fa-check-circle' : (type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle')}"></i><span>${message}</span>`;
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // ============================================================
+        // 3.  DARK MODE
+        // ============================================================
+        const darkToggle = document.getElementById('darkModeToggle');
+        if (localStorage.getItem('darkMode') === 'true') {
+            document.body.classList.add('dark');
+            darkToggle.textContent = '☀️';
+        }
+        darkToggle.addEventListener('click', () => {
+            document.body.classList.toggle('dark');
+            const isDark = document.body.classList.contains('dark');
+            localStorage.setItem('darkMode', isDark);
+            darkToggle.textContent = isDark ? '☀️' : '🌙';
+        });
+
+        // ============================================================
+        // 4.  AUTH
+        // ============================================================
+        function updateUI() {
+            const loginBtn = document.getElementById('loginBtn');
+            const signupBtn = document.getElementById('signupBtn');
+            const avatar = document.getElementById('userAvatar');
+            if (currentUser) {
+                loginBtn.style.display = 'none';
+                signupBtn.style.display = 'none';
+                avatar.style.display = 'flex';
+            } else {
+                loginBtn.style.display = 'block';
+                signupBtn.style.display = 'block';
+                avatar.style.display = 'none';
+            }
+        }
+
+        function getAuthHeaders() {
+            const token = localStorage.getItem('token');
+            if (!token) return {};
+            return { 'Authorization': `Bearer ${token}` };
+        }
+
+        async function fetchUserProfile() {
+            if (!token) return false;
+            try {
+                const res = await fetch(`${API_URL}/profile`, {
+                    headers: getAuthHeaders()
+                });
+                const data = await res.json();
+                if (data.success && data.user) {
+                    currentUser = data.user;
+                    updateUI();
+                    await fetchFavorites();
+                    return true;
+                } else {
+                    logout();
+                    return false;
+                }
+            } catch (e) {
+                console.error(e);
+                logout();
+                return false;
+            }
+        }
+
+        // ============================================================
+        // 5.  FAVORITES (FIXED)
+        // ============================================================
+
+        // Get favorites from backend
+        async function fetchFavorites() {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                favorites = [];
+                return;
+            }
+            try {
+                const res = await fetch(`${API_URL}/favorites`, {
+                    headers: getAuthHeaders()
+                });
+                const data = await res.json();
+                if (data.success) {
+                    favorites = data.favorites || [];
+                } else {
+                    // If token expired
+                    if (data.error === 'Invalid token' || data.error === 'Token missing') {
+                        localStorage.removeItem('token');
+                        token = null;
+                        currentUser = null;
+                        updateUI();
+                        showToast('Session expired. Please login again.', 'error');
+                        showLoginModal();
+                    }
+                    favorites = [];
+                }
+            } catch (e) {
+                console.error('Error fetching favorites:', e);
+                favorites = [];
+            }
+        }
+
+        // Add to favorites
+        async function addToFavorites(productName) {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                showToast('Please login first', 'error');
+                showLoginModal();
+                return;
+            }
+
+            if (favorites.includes(productName)) {
+                showToast('Already in favorites ❤️', 'info');
+                return;
+            }
+
+            try {
+                const res = await fetch(`${API_URL}/add-to-favorites`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        ...getAuthHeaders()
+                    },
+                    body: JSON.stringify({ product: productName })
+                });
+                const data = await res.json();
+
+                if (data.success) {
+                    favorites.push(productName);
+                    showToast('Added to favorites ❤️', 'success');
+                    // Refresh the displayed products to update heart icons
+                    search();
+                } else {
+                    if (data.error === 'Invalid token' || data.error === 'Token missing') {
+                        localStorage.removeItem('token');
+                        token = null;
+                        currentUser = null;
+                        updateUI();
+                        showToast('Session expired. Please login again.', 'error');
+                        showLoginModal();
+                    } else {
+                        showToast(data.error || 'Error adding to favorites', 'error');
+                    }
+                }
+            } catch (e) {
+                showToast('Error adding to favorites', 'error');
+            }
+        }
+
+        // Remove from favorites
+        async function removeFromFavorites(productName) {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                showToast('Please login first', 'error');
+                showLoginModal();
+                return;
+            }
+
+            try {
+                const res = await fetch(`${API_URL}/remove-from-favorites`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        ...getAuthHeaders()
+                    },
+                    body: JSON.stringify({ product: productName })
+                });
+                const data = await res.json();
+
+                if (data.success) {
+                    favorites = favorites.filter(f => f !== productName);
+                    showToast('Removed from favorites', 'success');
+                    // Refresh current view
+                    if (document.getElementById('heroSection').style.display !== 'none') {
+                        search();
+                    } else {
+                        showFavorites();
+                    }
+                } else {
+                    if (data.error === 'Invalid token' || data.error === 'Token missing') {
+                        localStorage.removeItem('token');
+                        token = null;
+                        currentUser = null;
+                        updateUI();
+                        showToast('Session expired. Please login again.', 'error');
+                        showLoginModal();
+                    } else {
+                        showToast(data.error || 'Error removing from favorites', 'error');
+                    }
+                }
+            } catch (e) {
+                showToast('Error removing from favorites', 'error');
+            }
+        }
+
+        // ============================================================
+        // 6.  LOGIN / SIGNUP
+        // ============================================================
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            try {
+                const res = await fetch(`${API_URL}/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    token = data.token;
+                    localStorage.setItem('token', token);
+                    currentUser = data.user;
+                    updateUI();
+                    closeLoginModal();
+                    await fetchFavorites();
+                    showToast(`Welcome back, ${currentUser.name}!`, 'success');
+                    search();
+                } else {
+                    showToast(data.error || 'Login failed', 'error');
+                }
+            } catch (e) {
+                showToast('Login error', 'error');
+            }
+        });
+
+        document.getElementById('signupForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const name = document.getElementById('signupName').value;
+            const email = document.getElementById('signupEmail').value;
+            const password = document.getElementById('signupPassword').value;
+            try {
+                const res = await fetch(`${API_URL}/signup`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, email, password })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    showToast('Account created! Please login.', 'success');
+                    closeSignupModal();
+                    showLoginModal();
+                } else {
+                    showToast(data.error || 'Signup failed', 'error');
+                }
+            } catch (e) {
+                showToast('Signup error', 'error');
+            }
+        });
+
+        function logout() {
+            localStorage.removeItem('token');
+            token = null;
+            currentUser = null;
+            favorites = [];
+            updateUI();
+            closeProfileModal();
+            showToast('Logged out', 'success');
+            search();
+        }
+
+        // ============================================================
+        // 7.  MODALS
+        // ============================================================
+        function showLoginModal() { document.getElementById('loginModal').style.display = 'flex'; }
+
+        function closeLoginModal() { document.getElementById('loginModal').style.display = 'none'; }
+
+        function showSignupModal() { closeLoginModal();
+            document.getElementById('signupModal').style.display = 'flex'; }
+
+        function closeSignupModal() { document.getElementById('signupModal').style.display = 'none'; }
+
+        function closeProfileModal() { document.getElementById('profileModal').style.display = 'none'; }
+
+        function showHome() { document.getElementById('heroSection').style.display = 'block';
+            search(); }
+
+        // ============================================================
+        // 8.  FAVORITES PAGE
+        // ============================================================
+        async function showFavorites() {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                showToast('Please login first', 'error');
+                showLoginModal();
+                return;
+            }
+
+            // Fetch fresh favorites first
+            await fetchFavorites();
+
+            const loading = document.getElementById('loading');
+            const resultsDiv = document.getElementById('results');
+            const heroSection = document.getElementById('heroSection');
+
+            loading.style.display = 'block';
+            resultsDiv.innerHTML = '';
+            heroSection.style.display = 'none';
+
+            try {
+                if (favorites.length === 0) {
+                    resultsDiv.innerHTML = `
+                        <div class="no-products" style="text-align:center;padding:60px 20px;">
+                            <h3 style="font-size:2rem;margin-bottom:10px;">❤️ No favorites yet</h3>
+                            <p style="color:var(--text-secondary);">Start adding products you love!</p>
+                        </div>
+                    `;
+                } else {
+                    // Search for all products and filter by favorites
+                    const res = await fetch(`${API_URL}/search`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ query: '', category: 'all' })
+                    });
+                    const data = await res.json();
+                    const favProducts = data.products.filter(p => favorites.includes(p.name));
+                    displayProducts(favProducts, true);
+                }
+            } catch (e) {
+                showToast('Error loading favorites', 'error');
+            }
+            loading.style.display = 'none';
+        }
+
+        // ============================================================
+        // 9.  SEARCH
+        // ============================================================
+        const searchInput = document.getElementById('searchInput');
+        const searchBtn = document.getElementById('searchBtn');
+        const loading = document.getElementById('loading');
+        const resultsDiv = document.getElementById('results');
+        const heroSection = document.getElementById('heroSection');
+        const voiceBtn = document.getElementById('voiceBtn');
+
+        document.querySelectorAll('.category-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentCategory = btn.dataset.cat;
+                search();
+            });
+        });
+
+        searchBtn.addEventListener('click', search);
+        searchInput.addEventListener('keypress', e => { if (e.key === 'Enter') search(); });
+
+        async function search() {
+            const query = searchInput.value.trim();
+            heroSection.style.display = 'block';
+            loading.style.display = 'block';
+            resultsDiv.innerHTML = '';
+            document.getElementById('recommendationsSection').style.display = 'none';
+            document.getElementById('recommendationsList').innerHTML = '';
+
+            try {
+                const res = await fetch(`${API_URL}/search`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ query: query || '', category: currentCategory })
+                });
+                const data = await res.json();
+                loading.style.display = 'none';
+
+                if (data.error) {
+                    resultsDiv.innerHTML = `<div class="no-products">Error: ${data.error}</div>`;
+                } else if (!data.products || data.products.length === 0) {
+                    resultsDiv.innerHTML = `<div class="no-products"><h3>No products found for "${query}"</h3></div>`;
+                } else {
+                    displayProducts(data.products);
+                }
+
+                if (data.recommendations && data.recommendations.length > 0) {
+                    displayRecommendations(data.recommendations);
+                    document.getElementById('recommendationsSection').style.display = 'block';
+                }
+            } catch (e) {
+                loading.style.display = 'none';
+                resultsDiv.innerHTML = `<div class="no-products">Cannot connect to backend</div>`;
+            }
+        }
+
+        // ============================================================
+        // 10. DISPLAY PRODUCTS (with Favorites)
+        // ============================================================
+        function displayProducts(products, showRemoveBtn = false) {
+            let html = '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:20px;margin-top:20px;">';
+            products.forEach(p => {
+                let bestPrice = p.price;
+                if (p.platforms) {
+                    for (let [plat, price] of Object.entries(p.platforms)) {
+                        if (price < bestPrice) bestPrice = price;
+                    }
+                }
+                const isFav = favorites.includes(p.name);
+                const favBtn = showRemoveBtn ?
+                    `<button class="favorite-btn" onclick="removeFromFavorites('${p.name.replace(/'/g, "\\'")}')">❤️</button>` :
+                    `<button class="favorite-btn" onclick="addToFavorites('${p.name.replace(/'/g, "\\'")}')">${isFav ? '❤️' : '🤍'}</button>`;
+                const imgSrc = p.image ? IMAGE_BASE + p.image : 'https://via.placeholder.com/150/667eea/ffffff?text=Product';
+                const stars = '⭐'.repeat(Math.floor(p.rating || 0)) + (p.rating % 1 >= 0.5 ? '½' : '');
+                const advice = p.ml_insights?.price_prediction?.advice || 'Compare prices across platforms';
+
+                let platformHtml = '';
+                if (p.platforms) {
+                    const sorted = Object.entries(p.platforms).sort((a, b) => a[1] - b[1]);
+                    platformHtml = '<div class="platform-prices">';
+                    sorted.forEach(([plat, price]) => {
+                        platformHtml +=
+                            `<span class="platform-price"><span class="plat">${plat}:</span> <span class="price-val">₹${price}</span></span>`;
+                    });
+                    platformHtml += '</div>';
+                }
+
+                let platformButtons = '';
+                if (p.platforms) {
+                    const sorted = Object.entries(p.platforms).sort((a, b) => a[1] - b[1]);
+                    platformButtons = '<div class="platform-buttons">';
+                    sorted.forEach(([plat, price]) => {
+                        let url = p.url || `https://www.${plat}.in/s?k=${encodeURIComponent(p.name)}`;
+                        if (plat === 'nykaa') url = `https://www.nykaa.com/search?q=${encodeURIComponent(p.name)}`;
+                        else if (plat === 'myntra') url =
+                            `https://www.myntra.com/search?q=${encodeURIComponent(p.name)}`;
+                        else if (plat === 'flipkart') url =
+                            `https://www.flipkart.com/search?q=${encodeURIComponent(p.name)}`;
+                        else if (plat === 'amazon') url =
+                            `https://www.amazon.in/s?k=${encodeURIComponent(p.name)}`;
+                        const displayName = plat.charAt(0).toUpperCase() + plat.slice(1);
+                        platformButtons +=
+                            `<button class="buy-btn-platform" onclick="window.open('${url}','_blank')">🛒 Buy on ${displayName} · ₹${price}</button>`;
+                    });
+                    platformButtons += '</div>';
+                }
+
+                const productJson = JSON.stringify(p).replace(/"/g, '&quot;');
+                const bestPlatform = p.platforms ? Object.keys(p.platforms).reduce((a, b) => p.platforms[a] < p.platforms[b] ? a :
+                    b) : 'amazon';
+                const bestUrl = p.url || `https://www.${bestPlatform}.in/s?k=${encodeURIComponent(p.name)}`;
+                const productLink = encodeURIComponent(bestUrl);
+                const productNameEncoded = encodeURIComponent(p.name);
+
+                const shareWhatsApp =
+                    `https://api.whatsapp.com/send?text=Check out ${productNameEncoded} on Shoppal: ${productLink}`;
+                const shareTelegram =
+                    `https://t.me/share/url?url=${productLink}&text=Check out ${productNameEncoded} on Shoppal`;
+                const shareTwitter =
+                    `https://twitter.com/intent/tweet?text=Check out ${productNameEncoded} on Shoppal&url=${productLink}`;
+                const shareFacebook =
+                    `https://www.facebook.com/sharer/sharer.php?u=${productLink}&quote=Check out ${productNameEncoded} on Shoppal`;
+                const shareInstagram = `https://www.instagram.com/?url=${productLink}`;
+                const shareCopy = `javascript:void(0);" onclick="copyToClipboard('${decodeURIComponent(productLink)}')"`;
+
+                html += `
+                    <div class="product-card">
+                        ${favBtn}
+                        <img src="${imgSrc}" onerror="this.src='https://via.placeholder.com/150/667eea/ffffff?text=No+Image'">
+                        <div class="product-name">${p.name}</div>
+                        <div class="product-brand">${p.brand}</div>
+                        <div class="rating">${stars} ${p.rating || 0}/5 (${p.reviews || 0} reviews)</div>
+                        <div class="price-row">
+                            <span class="price">₹${bestPrice}</span>
+                            <span class="original-price">₹${p.original_price || p.price}</span>
+                            <span class="discount">${p.discount || 0}% OFF</span>
+                        </div>
+                        ${platformHtml}
+                        <div class="ai-insights">🤖 AI: ${advice}</div>
+                        ${platformButtons}
+                        <button class="detail-btn" data-product='${productJson}'>📋 View Details</button>
+                        <div class="social-share">
+                            <a href="${shareWhatsApp}" target="_blank" class="whatsapp" title="Share on WhatsApp"><i class="fab fa-whatsapp"></i></a>
+                            <a href="${shareTelegram}" target="_blank" class="telegram" title="Share on Telegram"><i class="fab fa-telegram-plane"></i></a>
+                            <a href="${shareTwitter}" target="_blank" class="twitter" title="Share on Twitter"><i class="fab fa-twitter"></i></a>
+                            <a href="${shareFacebook}" target="_blank" class="facebook" title="Share on Facebook"><i class="fab fa-facebook-f"></i></a>
+                            <a href="${shareInstagram}" target="_blank" class="instagram" title="Share on Instagram"><i class="fab fa-instagram"></i></a>
+                            <a href="${shareCopy}" class="copy-link" title="Copy link"><i class="fas fa-copy"></i></a>
+                        </div>
+                    </div>
+                `;
+            });
+            html += '</div>';
+            resultsDiv.innerHTML = html;
+        }
+
+        // ============================================================
+        // 11. RECOMMENDATIONS
+        // ============================================================
+        function displayRecommendations(products) {
+            const container = document.getElementById('recommendationsList');
+            if (!container) return;
+            container.innerHTML = '';
+            container.style.cssText = `
+                display: flex !important;
+                flex-wrap: wrap !important;
+                gap: 20px !important;
+                justify-content: flex-start !important;
+                margin-top: 10px !important;
+                width: 100% !important;
+            `;
+
+            products.forEach(p => {
+                let bestPrice = p.price;
+                if (p.platforms) {
+                    for (let [plat, price] of Object.entries(p.platforms)) {
+                        if (price < bestPrice) bestPrice = price;
+                    }
+                }
+                const isFav = favorites.includes(p.name);
+                const favBtn =
+                    `<button class="favorite-btn" onclick="addToFavorites('${p.name.replace(/'/g, "\\'")}')">${isFav ? '❤️' : '🤍'}</button>`;
+                const imgSrc = p.image ? IMAGE_BASE + p.image : 'https://via.placeholder.com/150/667eea/ffffff?text=Product';
+                const stars = '⭐'.repeat(Math.floor(p.rating || 0)) + (p.rating % 1 >= 0.5 ? '½' : '');
+                const advice = p.ml_insights?.price_prediction?.advice || 'Compare prices across platforms';
+
+                let platformHtml = '';
+                if (p.platforms) {
+                    const sorted = Object.entries(p.platforms).sort((a, b) => a[1] - b[1]);
+                    platformHtml = '<div class="platform-prices">';
+                    sorted.forEach(([plat, price]) => {
+                        platformHtml +=
+                            `<span class="platform-price"><span class="plat">${plat}:</span> <span class="price-val">₹${price}</span></span>`;
+                    });
+                    platformHtml += '</div>';
+                }
+
+                let platformButtons = '';
+                if (p.platforms) {
+                    const sorted = Object.entries(p.platforms).sort((a, b) => a[1] - b[1]);
+                    platformButtons = '<div class="platform-buttons">';
+                    sorted.forEach(([plat, price]) => {
+                        let url = p.url || `https://www.${plat}.in/s?k=${encodeURIComponent(p.name)}`;
+                        if (plat === 'nykaa') url = `https://www.nykaa.com/search?q=${encodeURIComponent(p.name)}`;
+                        else if (plat === 'myntra') url =
+                            `https://www.myntra.com/search?q=${encodeURIComponent(p.name)}`;
+                        else if (plat === 'flipkart') url =
+                            `https://www.flipkart.com/search?q=${encodeURIComponent(p.name)}`;
+                        else if (plat === 'amazon') url =
+                            `https://www.amazon.in/s?k=${encodeURIComponent(p.name)}`;
+                        const displayName = plat.charAt(0).toUpperCase() + plat.slice(1);
+                        platformButtons +=
+                            `<button class="buy-btn-platform" onclick="window.open('${url}','_blank')">🛒 Buy on ${displayName} · ₹${price}</button>`;
+                    });
+                    platformButtons += '</div>';
+                }
+
+                const productJson = JSON.stringify(p).replace(/"/g, '&quot;');
+                const bestPlatform = p.platforms ? Object.keys(p.platforms).reduce((a, b) => p.platforms[a] < p.platforms[b] ? a :
+                    b) : 'amazon';
+                const bestUrl = p.url || `https://www.${bestPlatform}.in/s?k=${encodeURIComponent(p.name)}`;
+                const productLink = encodeURIComponent(bestUrl);
+                const productNameEncoded = encodeURIComponent(p.name);
+
+                const shareWhatsApp =
+                    `https://api.whatsapp.com/send?text=Check out ${productNameEncoded} on Shoppal: ${productLink}`;
+                const shareTelegram =
+                    `https://t.me/share/url?url=${productLink}&text=Check out ${productNameEncoded} on Shoppal`;
+                const shareTwitter =
+                    `https://twitter.com/intent/tweet?text=Check out ${productNameEncoded} on Shoppal&url=${productLink}`;
+                const shareFacebook =
+                    `https://www.facebook.com/sharer/sharer.php?u=${productLink}&quote=Check out ${productNameEncoded} on Shoppal`;
+                const shareInstagram = `https://www.instagram.com/?url=${productLink}`;
+                const shareCopy = `javascript:void(0);" onclick="copyToClipboard('${decodeURIComponent(productLink)}')"`;
+
+                const card = document.createElement('div');
+                card.className = 'product-card';
+                card.style.cssText = `
+                    flex: 0 0 calc(33.333% - 20px) !important;
+                    max-width: calc(33.333% - 20px) !important;
+                    box-sizing: border-box !important;
+                    background: var(--card-bg, white);
+                    border-radius: 12px;
+                    padding: 18px;
+                    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+                    transition: transform 0.2s, box-shadow 0.2s;
+                    position: relative;
+                `;
+                card.innerHTML = `
+                    ${favBtn}
+                    <img src="${imgSrc}" onerror="this.src='https://via.placeholder.com/150/667eea/ffffff?text=No+Image'" style="width:100%;height:150px;object-fit:contain;background:#f8f9fa;border-radius:8px;margin-bottom:10px;">
+                    <div class="product-name" style="font-weight:bold;font-size:1rem;margin:5px 0;">${p.name}</div>
+                    <div class="product-brand" style="color:var(--text-secondary, #666);font-size:0.85rem;">${p.brand}</div>
+                    <div class="rating" style="color:#ffc107;margin:5px 0;">${stars} ${p.rating || 0}/5 (${p.reviews || 0} reviews)</div>
+                    <div class="price-row" style="display:flex;align-items:center;gap:10px;margin:8px 0;flex-wrap:wrap;">
+                        <span class="price" style="font-size:1.3rem;font-weight:bold;color:#667eea;">₹${bestPrice}</span>
+                        <span class="original-price" style="text-decoration:line-through;color:#999;font-size:0.85rem;">₹${p.original_price || p.price}</span>
+                        <span class="discount" style="background:#ff4757;color:white;padding:2px 10px;border-radius:15px;font-size:0.7rem;">${p.discount || 0}% OFF</span>
+                    </div>
+                    ${platformHtml}
+                    <div class="ai-insights" style="background:var(--ai-insights-bg, #f8f9ff);padding:8px;border-radius:8px;margin:8px 0;font-size:0.8rem;border-left:3px solid #667eea;">🤖 AI: ${advice}</div>
+                    ${platformButtons}
+                    <button class="detail-btn" data-product='${productJson}'>📋 View Details</button>
+                    <div class="social-share">
+                        <a href="${shareWhatsApp}" target="_blank" class="whatsapp" title="Share on WhatsApp"><i class="fab fa-whatsapp"></i></a>
+                        <a href="${shareTelegram}" target="_blank" class="telegram" title="Share on Telegram"><i class="fab fa-telegram-plane"></i></a>
+                        <a href="${shareTwitter}" target="_blank" class="twitter" title="Share on Twitter"><i class="fab fa-twitter"></i></a>
+                        <a href="${shareFacebook}" target="_blank" class="facebook" title="Share on Facebook"><i class="fab fa-facebook-f"></i></a>
+                        <a href="${shareInstagram}" target="_blank" class="instagram" title="Share on Instagram"><i class="fab fa-instagram"></i></a>
+                        <a href="${shareCopy}" class="copy-link" title="Copy link"><i class="fas fa-copy"></i></a>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // ============================================================
+        // 12. EVENT DELEGATION (Product Detail)
+        // ============================================================
+        document.addEventListener('click', function(e) {
+            const btn = e.target.closest('.detail-btn');
+            if (btn) {
+                e.stopPropagation();
+                const productData = btn.getAttribute('data-product');
+                if (productData) {
+                    try {
+                        const product = JSON.parse(productData);
+                        showProductDetail(product);
+                    } catch (err) {
+                        console.error('Error parsing product data:', err);
+                        showToast('Error loading product details', 'error');
+                    }
+                }
+            }
+        });
+
+        // ============================================================
+        // 13. COPY LINK HELPER
+        // ============================================================
+        function copyToClipboard(text) {
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(text).then(() => {
+                    showToast('Link copied to clipboard!', 'success');
+                }).catch(() => {
+                    fallbackCopy(text);
+                });
+            } else {
+                fallbackCopy(text);
+            }
+        }
+
+        function fallbackCopy(text) {
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            document.body.appendChild(textarea);
+            textarea.select();
+            try {
+                document.execCommand('copy');
+                showToast('Link copied to clipboard!', 'success');
+            } catch (e) {
+                showToast('Failed to copy link', 'error');
+            }
+            document.body.removeChild(textarea);
+        }
+
+        // ============================================================
+        // 14. APP SHARE MODAL
+        // ============================================================
+        function showAppShareModal() {
+            const modal = document.getElementById('appShareModal');
+            modal.style.display = 'flex';
+
+            const appLink = encodeURIComponent(APP_URL);
+            const appName = 'Shoppal';
+            const message = `Check out ${appName} – AI price comparison app! ${APP_URL}`;
+
+            document.getElementById('shareAppWhatsApp').href =
+                `https://api.whatsapp.com/send?text=${encodeURIComponent(message)}`;
+            document.getElementById('shareAppTelegram').href =
+                `https://t.me/share/url?url=${appLink}&text=${encodeURIComponent(`Check out ${appName}`)}`;
+            document.getElementById('shareAppTwitter').href =
+                `https://twitter.com/intent/tweet?text=${encodeURIComponent(`Check out ${appName} – AI price comparison!`)}&url=${appLink}`;
+            document.getElementById('shareAppFacebook').href =
+                `https://www.facebook.com/sharer/sharer.php?u=${appLink}&quote=${encodeURIComponent(`Check out ${appName}`)}`;
+            document.getElementById('shareAppInstagram').href =
+                `https://www.instagram.com/?url=${appLink}`;
+
+            document.getElementById('appUrlDisplay').textContent = APP_URL;
+        }
+
+        function closeAppShareModal() {
+            document.getElementById('appShareModal').style.display = 'none';
+        }
+
+        function copyAppLink() {
+            copyToClipboard(APP_URL);
+        }
+
+        // ============================================================
+        // 15. PRODUCT DETAIL MODAL (Kept simple for this version)
+        // ============================================================
+        function showProductDetail(product) {
+            const modal = document.getElementById('productDetailModal');
+            if (!modal) return;
+            modal.style.display = 'flex';
+            modal.style.zIndex = '10000';
+
+            document.getElementById('modalProductName').innerText = product.name;
+
+            const reviewCount = product.reviews || 0;
+            const rating = product.rating || 0;
+            let reviewSummary = '';
+            if (reviewCount > 0) {
+                reviewSummary =
+                    `Based on ${reviewCount.toLocaleString()} reviews, users rate this product ${rating}/5. `;
+                if (rating >= 4.5) reviewSummary += '⭐ Highly recommended by customers.';
+                else if (rating >= 4.0) reviewSummary += '👍 Generally positive feedback.';
+                else if (rating >= 3.0) reviewSummary += '📝 Mixed reviews – check details below.';
+                else reviewSummary += '⚠️ Below average rating – consider other options.';
+            } else {
+                reviewSummary = 'No reviews yet. Be the first to review!';
+            }
+
+            let platformSummaries = '';
+            if (product.platforms && Object.keys(product.platforms).length > 0) {
+                const platforms = Object.keys(product.platforms);
+                platforms.forEach(plat => {
+                    const pc = generateProsConsForPlatform(product, plat);
+                    const platDisplay = plat.charAt(0).toUpperCase() + plat.slice(1);
+                    platformSummaries += `
+                        <div class="platform-summary">
+                            <h4>🛍️ ${platDisplay} Users Say</h4>
+                            <div class="pros-cons">
+                                <div class="pro-summary">
+                                    <strong>✅ What Users Love</strong>
+                                    <p>${pc.pros.join(' ')}</p>
+                                </div>
+                                <div class="con-summary">
+                                    <strong>❌ What Users Say Could Be Better</strong>
+                                    <p>${pc.cons.join(' ')}</p>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+
+            let platformHtml = '';
+            if (product.platforms && Object.keys(product.platforms).length > 0) {
+                const sorted = Object.entries(product.platforms).sort((a, b) => a[1] - b[1]);
+                platformHtml = '<table style="width:100%;border-collapse:collapse;margin:10px 0;">';
+                platformHtml +=
+                    '<tr style="background:var(--stat-card-bg);"><th style="padding:8px;text-align:left;">Platform</th><th style="padding:8px;text-align:right;">Price</th><th style="padding:8px;text-align:center;">Buy</th></tr>';
+                sorted.forEach(([plat, price]) => {
+                    let url = product.url || `https://www.${plat}.in/s?k=${encodeURIComponent(product.name)}`;
+                    if (plat === 'nykaa') url = `https://www.nykaa.com/search?q=${encodeURIComponent(product.name)}`;
+                    else if (plat === 'myntra') url =
+                        `https://www.myntra.com/search?q=${encodeURIComponent(product.name)}`;
+                    else if (plat === 'flipkart') url =
+                        `https://www.flipkart.com/search?q=${encodeURIComponent(product.name)}`;
+                    else if (plat === 'amazon') url =
+                        `https://www.amazon.in/s?k=${encodeURIComponent(product.name)}`;
+                    const displayName = plat.charAt(0).toUpperCase() + plat.slice(1);
+                    platformHtml += `
+                        <tr>
+                            <td style="padding:8px;border-bottom:1px solid var(--border-color);"><strong>${displayName}</strong></td>
+                            <td style="padding:8px;border-bottom:1px solid var(--border-color);text-align:right;">₹${price}</td>
+                            <td style="padding:8px;border-bottom:1px solid var(--border-color);text-align:center;"><button class="btn-primary" style="padding:4px 12px;font-size:12px;width:auto;margin:0;" onclick="window.open('${url}','_blank')">Buy</button></td>
+                        </tr>
+                    `;
+                });
+                platformHtml += '</table>';
+            } else {
+                platformHtml = '<p>No platform prices available.</p>';
+            }
+
+            const advice = product.ml_insights?.price_prediction?.advice || 'Check the best price above.';
+            const bestPlatform = product.platforms ? Object.keys(product.platforms).reduce((a, b) => product.platforms[a] < product
+                .platforms[b] ? a : b) : 'amazon';
+            const bestUrl = product.url || `https://www.${bestPlatform}.in/s?k=${encodeURIComponent(product.name)}`;
+            const productLink = encodeURIComponent(bestUrl);
+            const productNameEncoded = encodeURIComponent(product.name);
+
+            const shareWhatsApp =
+                `https://api.whatsapp.com/send?text=Check out ${productNameEncoded} on Shoppal: ${productLink}`;
+            const shareTelegram =
+                `https://t.me/share/url?url=${productLink}&text=Check out ${productNameEncoded} on Shoppal`;
+            const shareTwitter =
+                `https://twitter.com/intent/tweet?text=Check out ${productNameEncoded} on Shoppal&url=${productLink}`;
+            const shareFacebook =
+                `https://www.facebook.com/sharer/sharer.php?u=${productLink}&quote=Check out ${productNameEncoded} on Shoppal`;
+            const shareInstagram = `https://www.instagram.com/?url=${productLink}`;
+            const shareCopy = `javascript:void(0);" onclick="copyToClipboard('${decodeURIComponent(productLink)}')"`;
+
+            const socialButtons = `
+                <div class="social-share" style="margin:10px 0;">
+                    <a href="${shareWhatsApp}" target="_blank" class="whatsapp" title="Share on WhatsApp"><i class="fab fa-whatsapp"></i></a>
+                    <a href="${shareTelegram}" target="_blank" class="telegram" title="Share on Telegram"><i class="fab fa-telegram-plane"></i></a>
+                    <a href="${shareTwitter}" target="_blank" class="twitter" title="Share on Twitter"><i class="fab fa-twitter"></i></a>
+                    <a href="${shareFacebook}" target="_blank" class="facebook" title="Share on Facebook"><i class="fab fa-facebook-f"></i></a>
+                    <a href="${shareInstagram}" target="_blank" class="instagram" title="Share on Instagram"><i class="fab fa-instagram"></i></a>
+                    <a href="${shareCopy}" class="copy-link" title="Copy link"><i class="fas fa-copy"></i></a>
+                </div>
+            `;
+
+            document.getElementById('productDetailContent').innerHTML = `
+                <p><strong>Brand:</strong> ${product.brand}</p>
+                <p><strong>Category:</strong> ${product.category}</p>
+                <p><strong>Overall Rating:</strong> ${'⭐'.repeat(Math.floor(rating))} ${rating}/5 (${reviewCount.toLocaleString()} reviews)</p>
+                <div style="background:var(--stat-card-bg);padding:12px;border-radius:8px;margin:12px 0;">
+                    <p><strong>📝 Review Summary:</strong> ${reviewSummary}</p>
+                </div>
+                ${platformSummaries}
+                <p><strong>Price Comparison:</strong></p>
+                ${platformHtml}
+                <div style="background:var(--ai-insights-bg);padding:10px;border-radius:8px;margin:12px 0;border-left:3px solid #667eea;">
+                    <strong>🤖 AI Advice:</strong> ${advice}
+                </div>
+                <p><strong>Share this product:</strong></p>
+                ${socialButtons}
+                <button class="btn-primary" onclick="closeProductModal()" style="margin-top:10px;">Close</button>
+            `;
+        }
+
+        function closeProductModal() {
+            document.getElementById('productDetailModal').style.display = 'none';
+        }
+
+        // ============================================================
+        // 16. REVIEW GENERATION ENGINE
+        // ============================================================
+        function seededRandom(seed) {
+            let h = 0;
+            for (let i = 0; i < seed.length; i++) {
+                h = ((h << 5) - h) + seed.charCodeAt(i);
+                h |= 0;
+            }
+            let state = h;
+            return function() {
+                state = (state * 1664525 + 1013904223) & 0xFFFFFFFF;
+                return (state >>> 0) / 4294967296;
+            };
+        }
+
+        function generateProsConsForPlatform(product, platform) {
+            const seedStr = (product.name || '') + '|' + (product.brand || '') + '|' + platform + '|' + (product.category || '');
+            const rand = seededRandom(seedStr);
+            const rating = product.rating || 0;
+            const reviewCount = product.reviews || 0;
+            const discount = product.discount || 0;
+            const price = product.platforms ? product.platforms[platform] || product.price : product.price;
+            const platName = platform.charAt(0).toUpperCase() + platform.slice(1);
+            const pName = product.name || 'this product';
+            const pBrand = product.brand || 'the brand';
+
+            let tier;
+            if (rating >= 4.5) tier = 'high';
+            else if (rating >= 4.0) tier = 'mid';
+            else if (rating >= 3.5) tier = 'low';
+            else tier = 'poor';
+
+            const pools = {
+                amazon: {
+                    high: [
+                        `Amazon customers rave about the ${pName} — they say it's built to last and delivers exactly what it promises.`,
+                        `On Amazon, buyers call the ${pName} a "game-changer" — it's earned a loyal following.`,
+                        `Amazon reviews highlight the exceptional value of the ${pName} — it outperforms rivals at this price.`,
+                        `Many Amazon shoppers say the ${pName} is "top-notch" and worth every rupee.`,
+                        `Amazon users praise the ${pName} for its reliability and consistent performance.`,
+                        `The ${pName} has become a best-seller on Amazon thanks to glowing customer feedback.`,
+                        `Amazon buyers love the ${pName} — it's sturdy, functional, and a joy to use.`,
+                        `Customers on Amazon keep coming back to the ${pName} — it's a trusted choice.`
+                    ],
+                    mid: [
+                        `Amazon users are generally pleased with the ${pName} — it's a solid performer for daily use.`,
+                        `On Amazon, the ${pName} gets good marks for being dependable and fairly priced.`,
+                        `Amazon reviews show that most buyers are satisfied with the ${pName}'s quality.`,
+                        `The ${pName} on Amazon is described as "reliable" and "good value for money".`,
+                        `Amazon customers like the ${pName} — it does the job without any major flaws.`,
+                        `Feedback on Amazon suggests the ${pName} meets expectations for most users.`,
+                        `Amazon shoppers recommend the ${pName} for its decent build and fair price.`,
+                        `The ${pName} has a solid track record on Amazon — many users are happy with their purchase.`
+                    ],
+                    low: [
+                        `Amazon reviews for the ${pName} are mixed — some like it, others feel it could be better.`,
+                        `On Amazon, the ${pName} gets average ratings — it's decent but not outstanding.`,
+                        `Amazon users say the ${pName} works but lacks the premium feel they expected.`,
+                        `The ${pName} on Amazon has a few critical reviews — mostly about durability concerns.`,
+                        `Amazon customers describe the ${pName} as "just okay" — it's not bad, but not great either.`,
+                        `Feedback on Amazon is lukewarm — the ${pName} doesn't wow users, but it functions.`,
+                        `Some Amazon buyers wish the ${pName} had better materials, though it's acceptable for the price.`,
+                        `Amazon reviews suggest the ${pName} is a budget option with trade-offs.`
+                    ],
+                    poor: [
+                        `Amazon reviews for the ${pName} are concerning — many users report quality issues.`,
+                        `On Amazon, the ${pName} has a below-average rating — buyers warn about its longevity.`,
+                        `Amazon customers say the ${pName} is disappointing and doesn't live up to the hype.`,
+                        `The ${pName} on Amazon is criticized for poor build and subpar performance.`,
+                        `Amazon reviews mention that the ${pName} broke down faster than expected.`,
+                        `Feedback on Amazon is mostly negative — users advise looking elsewhere.`,
+                        `Amazon buyers say the ${pName} is overpriced for what it offers.`,
+                        `The ${pName} has a low rating on Amazon — many customers regret their purchase.`
+                    ]
+                },
+                flipkart: {
+                    high: [
+                        `Flipkart shoppers are thrilled with the ${pName} — they call it a "must-buy" in its category.`,
+                        `On Flipkart, the ${pName} has earned a stellar reputation for quality and durability.`,
+                        `Flipkart users say the ${pName} is "fantastic" — it's become a top pick for many.`,
+                        `The ${pName} on Flipkart is a customer favorite — reviews glow about its performance.`,
+                        `Flipkart buyers praise the ${pName} for its excellent build and long-lasting value.`,
+                        `Customers on Flipkart describe the ${pName} as "flawless" and highly recommend it.`,
+                        `Flipkart reviews consistently rate the ${pName} as one of the best in its segment.`,
+                        `The ${pName} has won over Flipkart users with its combination of style and function.`
+                    ],
+                    mid: [
+                        `Flipkart users are happy with the ${pName} — it's a good product for the price.`,
+                        `On Flipkart, the ${pName} gets positive feedback for being reliable and user-friendly.`,
+                        `Flipkart shoppers say the ${pName} is "decent" and works well for everyday needs.`,
+                        `The ${pName} on Flipkart has many satisfied customers who appreciate its value.`,
+                        `Flipkart reviews indicate that the ${pName} is a safe choice with no major issues.`,
+                        `Customers on Flipkart like the ${pName} — it's practical and gets the job done.`,
+                        `Flipkart users say the ${pName} is a good deal at this price point.`,
+                        `The ${pName} on Flipkart is described as "reliable" by most buyers.`
+                    ],
+                    low: [
+                        `Flipkart reviews for the ${pName} are average — some users are not fully satisfied.`,
+                        `On Flipkart, the ${pName} has a few critical reviews — mostly about fit and finish.`,
+                        `Flipkart shoppers say the ${pName} is "okay" but not as good as they hoped.`,
+                        `The ${pName} on Flipkart has mixed feedback — it works, but has some drawbacks.`,
+                        `Flipkart users mention that the ${pName} could use improvements in quality.`,
+                        `Reviews on Flipkart suggest the ${pName} is a compromise — it's cheap but feels cheap.`,
+                        `Flipkart customers say the ${pName} is functional but lacks refinement.`,
+                        `The ${pName} on Flipkart is rated average — it's not terrible, but not great.`
+                    ],
+                    poor: [
+                        `Flipkart reviews for the ${pName} are disappointing — many users regret buying it.`,
+                        `On Flipkart, the ${pName} has a low rating — buyers complain about defects.`,
+                        `Flipkart customers say the ${pName} is "unreliable" and advise against it.`,
+                        `The ${pName} on Flipkart is criticized for poor quality and short lifespan.`,
+                        `Flipkart reviews mention that the ${pName} didn't match the description.`,
+                        `Feedback on Flipkart is mostly negative — users feel cheated by the quality.`,
+                        `Flipkart buyers say the ${pName} is a waste of money and not worth buying.`,
+                        `The ${pName} has a poor rating on Flipkart — many customers returned it.`
+                    ]
+                },
+                myntra: {
+                    high: [
+                        `Myntra fashion lovers adore the ${pName} — it's stylish, comfortable, and well-made.`,
+                        `On Myntra, the ${pName} has become a wardrobe staple for many shoppers.`,
+                        `Myntra users say the ${pName} is "perfect" — it fits great and looks premium.`,
+                        `The ${pName} on Myntra gets rave reviews for its design and quality.`,
+                        `Myntra buyers praise the ${pName} for its excellent craftsmanship and attention to detail.`,
+                        `Customers on Myntra describe the ${pName} as "a must-have" for fashion enthusiasts.`,
+                        `Myntra reviews highlight the ${pName} as one of the best in its category.`,
+                        `The ${pName} has a loyal following on Myntra — users keep coming back for more.`
+                    ],
+                    mid: [
+                        `Myntra users are satisfied with the ${pName} — it's a good addition to their wardrobe.`,
+                        `On Myntra, the ${pName} gets positive reviews for being comfortable and stylish.`,
+                        `Myntra shoppers say the ${pName} is "nice" — it works well for casual wear.`,
+                        `The ${pName} on Myntra has many happy customers who appreciate its value.`,
+                        `Myntra reviews show that the ${pName} is a popular choice for everyday use.`,
+                        `Customers on Myntra like the ${pName} — it's practical and looks good.`,
+                        `Myntra users say the ${pName} is a reliable pick with decent quality.`,
+                        `The ${pName} on Myntra is described as "good for the price" by most buyers.`
+                    ],
+                    low: [
+                        `Myntra reviews for the ${pName} are mixed — some find it average.`,
+                        `On Myntra, the ${pName} has a few critical reviews — mostly about sizing and fit.`,
+                        `Myntra shoppers say the ${pName} is "just okay" — it's not as premium as expected.`,
+                        `The ${pName} on Myntra has mixed feedback — it looks good but lacks durability.`,
+                        `Myntra users mention that the ${pName} could be better in terms of quality.`,
+                        `Reviews on Myntra suggest the ${pName} is decent but not outstanding.`,
+                        `Myntra customers say the ${pName} is a bit overpriced for the quality offered.`,
+                        `The ${pName} on Myntra is rated average — it's not bad, but not great either.`
+                    ],
+                    poor: [
+                        `Myntra reviews for the ${pName} are disappointing — many users are unhappy.`,
+                        `On Myntra, the ${pName} has a low rating — buyers complain about poor material.`,
+                        `Myntra customers say the ${pName} is "not worth it" and advise against buying.`,
+                        `The ${pName} on Myntra is criticized for bad stitching and cheap fabric.`,
+                        `Myntra reviews mention that the ${pName} didn't match the product photos.`,
+                        `Feedback on Myntra is mostly negative — users feel misled by the description.`,
+                        `Myntra buyers say the ${pName} is a disappointment and they'd rather return it.`,
+                        `The ${pName} has a poor rating on Myntra — many customers regret the purchase.`
+                    ]
+                },
+                nykaa: {
+                    high: [
+                        `Nykaa beauty enthusiasts are obsessed with the ${pName} — it's a game-changer for their routine.`,
+                        `On Nykaa, the ${pName} has earned a cult following for its amazing results.`,
+                        `Nykaa users say the ${pName} is "magical" — it delivers visible improvements.`,
+                        `The ${pName} on Nykaa gets glowing reviews for its gentle yet effective formula.`,
+                        `Nykaa buyers praise the ${pName} for its premium quality and luxurious feel.`,
+                        `Customers on Nykaa describe the ${pName} as "a holy grail" for skincare.`,
+                        `Nykaa reviews highlight the ${pName} as one of the top products in its category.`,
+                        `The ${pName} has a loyal fanbase on Nykaa — users swear by its efficacy.`
+                    ],
+                    mid: [
+                        `Nykaa users are happy with the ${pName} — it's a good addition to their skincare routine.`,
+                        `On Nykaa, the ${pName} gets positive feedback for being gentle and effective.`,
+                        `Nykaa shoppers say the ${pName} is "nice" — it works well for most skin types.`,
+                        `The ${pName} on Nykaa has many satisfied customers who appreciate its value.`,
+                        `Nykaa reviews show that the ${pName} is a popular choice for daily use.`,
+                        `Customers on Nykaa like the ${pName} — it's practical and gives decent results.`,
+                        `Nykaa users say the ${pName} is a reliable pick with good ingredients.`,
+                        `The ${pName} on Nykaa is described as "good for the price" by most buyers.`
+                    ],
+                    low: [
+                        `Nykaa reviews for the ${pName} are mixed — some users didn't see results.`,
+                        `On Nykaa, the ${pName} has a few critical reviews — mostly about skin reactions.`,
+                        `Nykaa shoppers say the ${pName} is "just okay" — it didn't live up to the hype.`,
+                        `The ${pName} on Nykaa has mixed feedback — it's decent but not remarkable.`,
+                        `Nykaa users mention that the ${pName} could be stronger in terms of efficacy.`,
+                        `Reviews on Nykaa suggest the ${pName} is average — it works for some, not for others.`,
+                        `Nykaa customers say the ${pName} is a bit overpriced for the results it gives.`,
+                        `The ${pName} on Nykaa is rated average — it's not bad, but not great either.`
+                    ],
+                    poor: [
+                        `Nykaa reviews for the ${pName} are disappointing — many users had adverse reactions.`,
+                        `On Nykaa, the ${pName} has a low rating — buyers complain about irritation.`,
+                        `Nykaa customers say the ${pName} is "not worth it" and advise against buying.`,
+                        `The ${pName} on Nykaa is criticized for causing breakouts and dryness.`,
+                        `Nykaa reviews mention that the ${pName} didn't suit their skin type.`,
+                        `Feedback on Nykaa is mostly negative — users feel the product is overhyped.`,
+                        `Nykaa buyers say the ${pName} is a waste of money and they'd rather return it.`,
+                        `The ${pName} has a poor rating on Nykaa — many customers regret the purchase.`
+                    ]
+                }
+            };
+
+            const fallbackPool = {
+                high: [
+                    `Users on ${platName} absolutely love the ${pName} — it's a top-rated product.`,
+                    `Customers on ${platName} say the ${pName} exceeds expectations.`,
+                    `The ${pName} has a stellar reputation on ${platName} — highly recommended.`
+                ],
+                mid: [
+                    `Users on ${platName} are satisfied with the ${pName} — it's a solid choice.`,
+                    `Customers on ${platName} like the ${pName} for its good value.`,
+                    `The ${pName} gets decent reviews on ${platName} — it's a reliable option.`
+                ],
+                low: [
+                    `Users on ${platName} have mixed feelings about the ${pName}.`,
+                    `Customers on ${platName} say it's average — not great, not terrible.`,
+                    `The ${pName} on ${platName} has some critical reviews — check the details.`
+                ],
+                poor: [
+                    `Users on ${platName} are disappointed with the ${pName} — many complaints.`,
+                    `Customers on ${platName} advise against buying the ${pName}.`,
+                    `The ${pName} has a poor rating on ${platName} — better alternatives exist.`
+                ]
+            };
+
+            const pool = pools[platform] || fallbackPool;
+            const tierPool = pool[tier] || fallbackPool.mid;
+
+            let pros = [];
+            let cons = [];
+
+            const pickCountPros = 2 + Math.floor(rand() * 2);
+            const shuffledPros = [...tierPool];
+            for (let i = shuffledPros.length - 1; i > 0; i--) {
+                const j = Math.floor(rand() * (i + 1));
+                [shuffledPros[i], shuffledPros[j]] = [shuffledPros[j], shuffledPros[i]];
+            }
+            for (let i = 0; i < Math.min(pickCountPros, shuffledPros.length); i++) {
+                pros.push(shuffledPros[i]);
+            }
+
+            let consCount = 0;
+            if (tier === 'high') consCount = Math.floor(rand() * 1);
+            else if (tier === 'mid') consCount = Math.floor(rand() * 2);
+            else if (tier === 'low') consCount = 1 + Math.floor(rand() * 2);
+            else consCount = 2 + Math.floor(rand() * 1);
+
+            const shuffledCons = [...tierPool];
+            for (let i = shuffledCons.length - 1; i > 0; i--) {
+                const j = Math.floor(rand() * (i + 1));
+                [shuffledCons[i], shuffledCons[j]] = [shuffledCons[j], shuffledCons[i]];
+            }
+            for (let i = 0; i < Math.min(consCount, shuffledCons.length); i++) {
+                cons.push(shuffledCons[i]);
+            }
+
+            const extraPros = [];
+            const extraCons = [];
+
+            if (reviewCount > 1000) {
+                extraPros.push(
+                    `Over ${reviewCount.toLocaleString()} customers on ${platName} have trusted the ${pName} — it's a proven favourite.`
+                    );
+            } else if (reviewCount > 500) {
+                extraPros.push(
+                    `With ${reviewCount.toLocaleString()} reviews, the ${pName} is a well-loved product on ${platName}.`);
+            } else if (reviewCount > 100) {
+                extraPros.push(
+                    `More than ${reviewCount} shoppers on ${platName} have shared their experiences — worth checking out.`
+                    );
+            } else {
+                extraCons.push(
+                    `Only ${reviewCount} reviews on ${platName} — you may want to see more feedback before deciding.`);
+            }
+
+            if (discount >= 40) {
+                extraPros.push(
+                    `At ${discount}% off, the ${pName} is a steal on ${platName} — users say it's unbeatable value.`);
+            } else if (discount >= 25) {
+                extraPros.push(
+                    `${discount}% discount on ${platName} makes the ${pName} a smart buy — customers agree.`);
+            } else if (discount >= 10) {
+                extraPros.push(`A modest ${discount}% off on ${platName} — users appreciate the savings.`);
+            } else {
+                extraCons.push(`No significant discount on ${platName} — some users wish it were cheaper.`);
+            }
+
+            const pVal = price || 0;
+            if (pVal > 10000) {
+                extraCons.push(`At ₹${pVal}, the ${pName} is premium-priced on ${platName} — not for tight budgets.`);
+                extraPros.push(
+                    `Despite the high price, many buyers on ${platName} say the ${pName} justifies its cost with top-tier quality.`
+                    );
+            } else if (pVal > 5000) {
+                extraCons.push(`₹${pVal} is a bit steep on ${platName} — some users compare it with cheaper alternatives.`);
+                extraPros.push(
+                    `At ₹${pVal}, the ${pName} offers a good balance of quality and price, say ${platName} buyers.`);
+            } else if (pVal > 2000) {
+                extraPros.push(`At ₹${pVal}, the ${pName} is affordable — ${platName} users feel it's worth every rupee.`);
+            } else if (pVal > 500) {
+                extraPros.push(`Budget-friendly at ₹${pVal} on ${platName} — users say it's a great deal.`);
+            } else {
+                extraPros.push(
+                    `An absolute steal at ₹${pVal} on ${platName} — users can't believe the quality for this price.`);
+            }
+
+            if (pBrand && pBrand !== 'Generic') {
+                extraPros.push(`The ${pBrand} brand adds credibility — many ${platName} users trust it.`);
+            }
+            if (rating >= 4.0) {
+                extraPros.push(`Would you recommend the ${pName}? ${platName} users say YES — it's a crowd-pleaser.`);
+            } else if (rating < 3.0) {
+                extraCons.push(`Would you recommend the ${pName}? ${platName} users say NO — many are dissatisfied.`);
+            }
+
+            const allPros = [...pros, ...extraPros];
+            const allCons = [...cons, ...extraCons];
+            while (allPros.length < 2) allPros.push(
+                `Users on ${platName} find the ${pName} to be a dependable choice.`);
+            while (allCons.length < 1) allCons.push(
+                `No major drawbacks reported by customers on ${platName} — but always read the reviews.`);
+
+            const uniquePros = [...new Set(allPros)];
+            const uniqueCons = [...new Set(allCons)];
+            return { pros: uniquePros.slice(0, 4), cons: uniqueCons.slice(0, 4) };
+        }
+
+        // ============================================================
+        // 17. VOICE SEARCH
+        // ============================================================
+        (function initVoice() {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SpeechRecognition) { voiceBtn.style.display = 'none'; return; }
+            const recognition = new SpeechRecognition();
+            recognition.lang = 'en-IN';
+            recognition.continuous = false;
+            recognition.interimResults = true;
+            recognition.maxAlternatives = 1;
+
+            voiceBtn.addEventListener('click', () => {
+                if (recognition.started) {
+                    recognition.stop();
+                    voiceBtn.innerHTML = '<i class="fas fa-microphone"></i>';
+                    voiceBtn.classList.remove('listening');
+                    return;
+                }
+                try {
+                    recognition.start();
+                    voiceBtn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i>';
+                    voiceBtn.classList.add('listening');
+                    showToast('Listening... Speak now', 'info');
+                } catch (e) {
+                    showToast('Voice error: ' + e.message, 'error');
+                    voiceBtn.innerHTML = '<i class="fas fa-microphone"></i>';
+                    voiceBtn.classList.remove('listening');
+                }
+            });
+
+            recognition.onresult = (event) => {
+                let final = '',
+                    interim = '';
+                for (let i = event.resultIndex; i < event.results.length; i++) {
+                    const transcript = event.results[i][0].transcript;
+                    if (event.results[i].isFinal) { final += transcript; } else { interim += transcript; }
+                }
+                if (final) {
+                    searchInput.value = final;
+                    voiceBtn.innerHTML = '<i class="fas fa-microphone"></i>';
+                    voiceBtn.classList.remove('listening');
+                    searchBtn.click();
+                } else {
+                    searchInput.value = interim;
+                }
+            };
+
+            recognition.onerror = (event) => {
+                console.error('Speech recognition error:', event.error);
+                if (event.error !== 'not-allowed') {
+                    showToast('Voice error: ' + event.error, 'error');
+                }
+                voiceBtn.innerHTML = '<i class="fas fa-microphone"></i>';
+                voiceBtn.classList.remove('listening');
+            };
+
+            recognition.onend = () => {
+                voiceBtn.innerHTML = '<i class="fas fa-microphone"></i>';
+                voiceBtn.classList.remove('listening');
+            };
+        })();
+
+        // ============================================================
+        // 18. PROFILE FUNCTIONS (Placeholder – keep existing)
+        // ============================================================
+        async function showProfileModal() {
+            if (!token) { showToast('Please login first', 'error');
+                showLoginModal(); return; }
+            try {
+                const res = await fetch(`${API_URL}/profile`, {
+                    headers: getAuthHeaders()
+                });
+                const data = await res.json();
+                if (data.success && data.user) {
+                    const user = data.user;
+                    document.getElementById('editName').value = user.name || '';
+                    document.getElementById('editEmail').value = user.email || '';
+                    document.getElementById('editPhone').value = user.phone || '';
+                    document.getElementById('editDob').value = user.dob || '';
+                    document.getElementById('editGender').value = user.gender || '';
+                    document.getElementById('profileModal').style.display = 'flex';
+                    loadAddresses();
+                    loadOrders();
+                    loadRecentViews();
+                    loadSkinProfile();
+                } else {
+                    showToast(data.error || 'Failed to load profile', 'error');
+                }
+            } catch (e) { console.error(e);
+                showToast('Error loading profile', 'error'); }
+        }
+
+        function switchTab(tab) {
+            document.querySelectorAll('.profile-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.profile-tab-content').forEach(c => c.classList.remove('active'));
+            if (event && event.target) event.target.classList.add('active');
+            document.getElementById('tab-' + tab).classList.add('active');
+        }
+
+        async function savePersonalInfo() {
+            const updates = {
+                name: document.getElementById('editName').value,
+                phone: document.getElementById('editPhone').value,
+                dob: document.getElementById('editDob').value,
+                gender: document.getElementById('editGender').value
+            };
+            try {
+                const res = await fetch(`${API_URL}/update-profile`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        ...getAuthHeaders()
+                    },
+                    body: JSON.stringify(updates)
+                });
+                if (res.ok) { showToast('Profile updated', 'success');
+                    currentUser.name = updates.name; } else showToast('Update failed', 'error');
+            } catch (e) { showToast('Update error', 'error'); }
+        }
+
+        async function loadAddresses() {
+            try {
+                const res = await fetch(`${API_URL}/addresses`, {
+                    headers: getAuthHeaders()
+                });
+                const data = await res.json();
+                const container = document.getElementById('addressesList');
+                if (!data.addresses || data.addresses.length === 0) { container.innerHTML = '<p>No saved addresses.</p>'; return; }
+                container.innerHTML = data.addresses.map(addr =>
+                    `<div class="address-card"><strong>${addr.name}</strong><br>${addr.street}, ${addr.city}, ${addr.state} - ${addr.pincode}<br>Phone: ${addr.phone}<span class="delete-addr" onclick="deleteAddress('${addr.id}')">🗑️</span></div>`
+                    ).join('');
+            } catch (e) { console.error(e); }
+        }
+
+        function showAddAddressForm() {
+            const name = prompt('Name on address');
+            const street = prompt('Street address');
+            const city = prompt('City');
+            const state = prompt('State');
+            const pincode = prompt('Pincode');
+            const phone = prompt('Phone number');
+            if (!name || !street || !city || !state || !pincode || !phone) return;
+            fetch(`${API_URL}/addresses`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...getAuthHeaders()
+                },
+                body: JSON.stringify({ name, street, city, state, pincode, phone, is_default: false })
+            }).then(() => loadAddresses());
+        }
+
+        async function deleteAddress(id) {
+            if (confirm('Delete this address?')) {
+                await fetch(`${API_URL}/addresses/${id}`, {
+                    method: 'DELETE',
+                    headers: getAuthHeaders()
+                });
+                loadAddresses();
+            }
+        }
+
+        async function loadOrders() {
+            try {
+                const res = await fetch(`${API_URL}/profile`, {
+                    headers: getAuthHeaders()
+                });
+                const data = await res.json();
+                const orders = data.user?.purchase_history || [];
+                const container = document.getElementById('ordersList');
+                if (!orders.length) { container.innerHTML = '<p>No orders yet.</p>'; return; }
+                container.innerHTML = orders.map(order =>
+                    `<div class="order-card"><strong>${order.product_name}</strong><br>Price: ₹${order.price} on ${order.platform || 'Shoppal'}<br>Purchased: ${new Date(order.purchased_at).toLocaleDateString()}<br>Status: <span class="status ${order.status || 'pending'}">${order.status || 'Pending'}</span></div>`
+                    ).join('');
+            } catch (e) { console.error(e); }
+        }
+
+        async function loadRecentViews() {
+            try {
+                const res = await fetch(`${API_URL}/profile`, {
+                    headers: getAuthHeaders()
+                });
+                const data = await res.json();
+                const views = data.user?.recent_views || [];
+                const container = document.getElementById('recentViewsList');
+                if (!views.length) { container.innerHTML = '<p>No recently viewed products.</p>'; return; }
+                container.innerHTML = views.map(view =>
+                    `<div class="recent-card"><strong>${view.name}</strong><br>Viewed: ${new Date(view.viewed_at).toLocaleString()}</div>`
+                    ).join('');
+            } catch (e) { console.error(e); }
+        }
+
+        async function loadSkinProfile() {
+            try {
+                const res = await fetch(`${API_URL}/skin-profile`, {
+                    headers: getAuthHeaders()
+                });
+                const data = await res.json();
+                const sp = data.skin_profile || {};
+                document.getElementById('skinType').value = sp.skin_type || '';
+                document.getElementById('skinConcerns').value = (sp.concerns || []).join(', ');
+                document.getElementById('skinAllergies').value = (sp.allergies || []).join(', ');
+            } catch (e) { console.error(e); }
+        }
+
+        async function saveSkinProfile() {
+            const skin_profile = {
+                skin_type: document.getElementById('skinType').value,
+                concerns: document.getElementById('skinConcerns').value.split(',').map(s => s.trim()).filter(s => s),
+                allergies: document.getElementById('skinAllergies').value.split(',').map(s => s.trim()).filter(s => s)
+            };
+            try {
+                const res = await fetch(`${API_URL}/skin-profile`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        ...getAuthHeaders()
+                    },
+                    body: JSON.stringify(skin_profile)
+                });
+                if (res.ok) showToast('Skin profile saved', 'success');
+                else showToast('Save failed', 'error');
+            } catch (e) { showToast('Save error', 'error'); }
+        }
+
+        // ============================================================
+        // 19. INIT
+        // ============================================================
+        async function init() {
+            if (token) {
+                const loggedIn = await fetchUserProfile();
+                if (!loggedIn) {
+                    showLoginModal();
+                } else {
+                    search();
+                }
+            } else {
+                showLoginModal();
+                search();
+            }
+        }
+
+        // Close modal on backdrop click
+        document.querySelectorAll('.modal').forEach(modal => {
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.style.display = 'none';
+                }
+            });
+        });
+
+        window.onload = init;
+    </script>
+</body>
+</html>
